@@ -1,0 +1,30 @@
+{
+  "name": "userprofile_dim_secteur_connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "plugin.name": "pgoutput",
+    "database.hostname": "13.39.236.161",
+    "database.port": "32050",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "userprofile_db",
+    "database.server.name": "userprofile",
+    "table.include.list": "public.secteur",
+    "publication.name": "dbz_publication",
+    "slot.name": "dbz_slot_secteur",
+    "topic.prefix": "userprofile_dim_secteur",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter.schemas.enable": "false",
+
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": "true",
+    "transforms.unwrap.delete.handling.mode": "rewrite",
+    "transforms.unwrap.add.fields": "op,source.ts_ms",
+    "transforms.unwrap.add.headers": "db"
+  }
+}
+

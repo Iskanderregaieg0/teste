@@ -1,0 +1,18 @@
+pg_stat_user_tables:
+  query: "SELECT relname, schemaname, n_tup_ins, n_tup_upd, n_tup_del FROM pg_stat_user_tables"
+  metrics:
+    - relname:
+        usage: "label"
+        description: "Table name"
+    - schemaname:
+        usage: "label"
+        description: "Schema name"
+    - n_tup_ins:
+        usage: "counter"
+        description: "Number of rows inserted"
+    - n_tup_upd:
+        usage: "counter"
+        description: "Number of rows updated"
+    - n_tup_del:
+        usage: "counter"
+        description: "Number of rows deleted"
