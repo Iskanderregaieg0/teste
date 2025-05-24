@@ -1,0 +1,30 @@
+name: CI/CD - Déploiement Flink Pipeline
+
+on:
+  push:
+    branches:
+      - bi-pipeline  # ← Branche ciblée
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Cloner le dépôt
+        uses: actions/checkout@v3
+
+      - name: 🔐 Ajouter la clé SSH pour accéder à l’EC2
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 52.47.196.93 >> ~/.ssh/known_hosts
+
+      - name: 📡 Copier les fichiers vers l’EC2
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 'mkdir -p ~/deploy-flink'
+          scp -i ~/.ssh/id_rsa -r ./* ubuntu@52.47.196.93:~/deploy-flink/
+
+      - name: 🚀 Lancer le script de déploiement
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 'cd ~/deploy-flink && chmod +x deploy.sh && ./deploy.sh'
