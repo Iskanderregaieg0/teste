@@ -3,7 +3,7 @@ name: CI/CD - Déploiement Flink Pipeline
 on:
   push:
     branches:
-      - bi-pipeline  # ← Branche ciblée
+      - bi-pipeline
 
 jobs:
   deploy:
@@ -29,30 +29,32 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 <<'EOF'
             cd ~/deploy-flink
-            running=$(docker ps -q | wc -l)
+
+            echo "🧪 Vérification des conteneurs..."
             total=$(docker-compose ps -q | wc -l)
-
-            echo "🟡 Conteneurs actifs: $running / $total"
-
-            if [ "$running" -lt "$total" ]; then
-              echo "⚠️ Des conteneurs ne sont pas actifs, relance en cours..."
-              docker-compose up -d
-            fi
-
-            echo "⏳ Attente du démarrage complet..."
             tries=0
-            max=10
-            while [ "$(docker ps -q | wc -l)" -lt "$total" ]; do
-              tries=$((tries+1))
-              echo "⏳ Tentative $tries/$max..."
-              sleep 5
+            max=5
+
+            while true; do
+              running=$(docker ps -q | wc -l)
+              echo "🔍 $running / $total conteneurs actifs"
+
+              if [ "$running" -lt "$total" ]; then
+                echo "⚠️ Certains conteneurs sont arrêtés, relance..."
+                docker-compose up -d
+                echo "⏳ Attente 15s avant nouvelle vérification..."
+                sleep 15
+                tries=$((tries+1))
+              else
+                echo "✅ Tous les conteneurs sont actifs"
+                break
+              fi
+
               if [ "$tries" -ge "$max" ]; then
-                echo "❌ Timeout : certains conteneurs ne démarrent pas"
+                echo "❌ Échec : certains conteneurs ne démarrent pas après $max tentatives"
                 exit 1
               fi
             done
-
-            echo "✅ Tous les conteneurs sont actifs."
           EOF
 
       - name: 🚀 Lancer le script de déploiement
