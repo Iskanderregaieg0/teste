@@ -30,7 +30,7 @@ jobs:
           ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 <<'EOF'
             cd ~/deploy-flink
 
-            echo "🧪 Vérification des conteneurs..."
+            echo "🧪 Vérification des conteneurs Docker..."
             total=$(docker-compose ps -q | wc -l)
             tries=0
             max=5
@@ -42,8 +42,8 @@ jobs:
               if [ "$running" -lt "$total" ]; then
                 echo "⚠️ Certains conteneurs sont arrêtés, relance..."
                 docker-compose up -d
-                echo "⏳ Attente 15s avant nouvelle vérification..."
-                sleep 15
+                echo "⏳ Attente 30 secondes..."
+                sleep 30
                 tries=$((tries+1))
               else
                 echo "✅ Tous les conteneurs sont actifs"
