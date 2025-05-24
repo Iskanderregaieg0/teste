@@ -25,6 +25,36 @@ jobs:
           ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 'mkdir -p ~/deploy-flink'
           scp -i ~/.ssh/id_rsa -r ./* ubuntu@52.47.196.93:~/deploy-flink/
 
+      - name: 🧪 Vérifier et relancer les conteneurs si nécessaire
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 <<'EOF'
+            cd ~/deploy-flink
+            running=$(docker ps -q | wc -l)
+            total=$(docker-compose ps -q | wc -l)
+
+            echo "🟡 Conteneurs actifs: $running / $total"
+
+            if [ "$running" -lt "$total" ]; then
+              echo "⚠️ Des conteneurs ne sont pas actifs, relance en cours..."
+              docker-compose up -d
+            fi
+
+            echo "⏳ Attente du démarrage complet..."
+            tries=0
+            max=10
+            while [ "$(docker ps -q | wc -l)" -lt "$total" ]; do
+              tries=$((tries+1))
+              echo "⏳ Tentative $tries/$max..."
+              sleep 5
+              if [ "$tries" -ge "$max" ]; then
+                echo "❌ Timeout : certains conteneurs ne démarrent pas"
+                exit 1
+              fi
+            done
+
+            echo "✅ Tous les conteneurs sont actifs."
+          EOF
+
       - name: 🚀 Lancer le script de déploiement
         run: |
           ssh -i ~/.ssh/id_rsa ubuntu@52.47.196.93 'cd ~/deploy-flink && chmod +x deploy.sh && ./deploy.sh'
