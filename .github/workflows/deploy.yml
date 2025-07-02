@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - bi-pipeline
+  workflow_dispatch:
 
 jobs:
   deploy:
