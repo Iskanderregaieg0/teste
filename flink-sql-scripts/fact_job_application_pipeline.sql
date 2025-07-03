@@ -83,5 +83,6 @@ SELECT
 FROM fact_job_application_source c
 LEFT JOIN Matching_score s
   ON c.candidateid = s.id_candidat and c.jobid=s.id_job
-WHERE c.id IS NOT NULL;
+WHERE c.id IS NOT NULL
+AND (c.__op = 'c' OR c.__op = 'u');
 
