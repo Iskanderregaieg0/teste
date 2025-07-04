@@ -49,7 +49,7 @@ CREATE TABLE fact_job_application_sink (
     canal_candidature VARCHAR(100),
     ancien_candidat BOOLEAN,
     feedback_refus VARCHAR(255),
-    Score_matching FLOAT,
+    Score_matching Double,
     __deleted VARCHAR(10),
     __op VARCHAR(10),
     __source_ts_ms BIGINT,
@@ -76,7 +76,7 @@ SELECT
     c.canal_candidature ,
     c.ancien_candidat ,
     c.feedback_refus ,
-    CAST(s.score AS FLOAT) as Score_matching ,
+    CAST(s.score AS Double) as Score_matching ,
     c.__deleted ,
     c.__op ,
     c.__source_ts_ms 
